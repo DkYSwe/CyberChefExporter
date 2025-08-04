@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>CyberChef Recipe Backup</title>
+<style>
+  body { font-family: sans-serif; margin: 2rem; max-width: 500px; }
+  button { margin-top: 12px; }
+  #status { margin-top: 1rem; height: 1.2rem; }
+</style>
+</head>
+<body>
+  <h1>CyberChef Recipe Backup</h1>
+  <p>This tool exports all saved CyberChef recipes to a JSON file.</p>
+  <button id="backupBtn">Download Backup JSON</button>
+  <p id="status"></p>
+
+<script>
+  const backupBtn = document.getElementById('backupBtn');
+  const statusEl = document.getElementById('status');
+
+  function setStatus(msg, error = false) {
+    statusEl.textContent = msg;
+    statusEl.style.color = error ? 'red' : 'green';
+    console.log('Backup:', msg);
+  }
+
+  backupBtn.addEventListener('click', () => {
+    try {
+      const saved = localStorage.getItem('savedRecipes');
+      if (!saved) {
+        setStatus('No saved recipes found in localStorage.', true);
+        return;
+      }
+      const recipes = JSON.parse(saved);
+      if (!Array.isArray(recipes)) {
+        setStatus('Saved data is not an array of recipes.', true);
+        return;
+      }
+      const dataStr = JSON.stringify(recipes, null, 2);
+      const blob = new Blob([dataStr], {type: 'application/json'});
+      const url = URL.createObjectURL(blob);
+
+      const a = document.createElement('a');
+      a.href = url;
+      const now = new Date();
+      const timestamp = now.toISOString().slice(0,19).replace(/[:T]/g,'-');
+      a.download = `cyberchef-recipes-backup-${timestamp}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+
+      setStatus(`Backup ready: ${recipes.length} recipes downloaded.`, false);
+    } catch (e) {
+      setStatus('Error during backup: ' + e.message, true);
+      console.error(e);
+    }
+  });
+</script>
+</body>
+</html>

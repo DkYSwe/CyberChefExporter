@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>CyberChef Recipe Restore</title>
+<style>
+  body { font-family: sans-serif; margin: 2rem; max-width: 500px; }
+  input, button { margin-top: 12px; width: 100%; box-sizing: border-box; }
+  #status { margin-top: 1rem; height: 1.2rem; }
+</style>
+</head>
+<body>
+  <h1>CyberChef Recipe Restore</h1>
+  <p>Select the CyberChef recipes backup JSON file you want to restore.</p>
+
+  <input type="file" id="fileInput" accept="application/json" />
+  <button id="restoreBtn" disabled>Restore Recipes to localStorage</button>
+  <p id="status"></p>
+
+<script>
+  const fileInput = document.getElementById('fileInput');
+  const restoreBtn = document.getElementById('restoreBtn');
+  const statusEl = document.getElementById('status');
+  let recipes = null;
+
+  function setStatus(msg, error = false) {
+    statusEl.textContent = msg;
+    statusEl.style.color = error ? 'red' : 'green';
+    console.log('Restore:', msg);
+  }
+
+  fileInput.addEventListener('change', e => {
+    const file = e.target.files[0];
+    if (!file) {
+      setStatus('No file selected.', true);
+      restoreBtn.disabled = true;
+      recipes = null;
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = ev => {
+      try {
+        const data = JSON.parse(ev.target.result);
+        if (!Array.isArray(data) || data.length === 0) {
+          setStatus('File must contain a non-empty array of recipes.', true);
+          recipes = null;
+          restoreBtn.disabled = true;
+          return;
+        }
+        recipes = data;
+        setStatus(`Loaded ${recipes.length} recipe(s).`, false);
+        restoreBtn.disabled = false;
+      } catch (e) {
+        setStatus('Invalid JSON file.', true);
+        recipes = null;
+        restoreBtn.disabled = true;
+      }
+    };
+    reader.onerror = () => {
+      setStatus('Unable to read file.', true);
+      recipes = null;
+      restoreBtn.disabled = true;
+    };
+    reader.readAsText(file);
+  });
+
+  restoreBtn.addEventListener('click', () => {
+    if (!recipes) {
+      setStatus('No valid recipes loaded.', true);
+      return;
+    }
+    try {
+      localStorage.setItem('savedRecipes', JSON.stringify(recipes));
+      setStatus(`Restored ${recipes.length} recipes to localStorage! Please reload your CyberChef page.`, false);
+    } catch (e) {
+      setStatus('Failed to write recipes to localStorage.', true);
+      console.error(e);
+    }
+  });
+</script>
+</body>
+</html>
