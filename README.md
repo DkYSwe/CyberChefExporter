@@ -1,4 +1,4 @@
-# CyberChefExporter
+# CyberChef-Exporter
 Simple html pages to export / backup and restore Cyberchef Recipes from local installation.
 Can also be used to move recipes between browser.
 
