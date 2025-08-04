@@ -1,5 +1,5 @@
 # CyberChefExporter
-Simple html pages to export and restore Cyberchef Recipes from local installation.
+Simple html pages to export / backup and restore Cyberchef Recipes from local installation.
 Can also be used to move recipes between browser.
 
 1. Download both files (backup.html & restore.html).
